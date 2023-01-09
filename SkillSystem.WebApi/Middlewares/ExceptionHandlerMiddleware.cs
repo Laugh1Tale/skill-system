@@ -32,6 +32,7 @@ public class ExceptionHandlerMiddleware
         {
             EntityNotFoundException => (int)HttpStatusCode.NotFound,
             ForbiddenException => (int)HttpStatusCode.Forbidden,
+            ValidationException => (int)HttpStatusCode.BadRequest,
             _ => (int)HttpStatusCode.InternalServerError
         };
 

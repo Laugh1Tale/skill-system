@@ -39,6 +39,18 @@ public class GradesRepository : IGradesRepository
         return query.OrderBy(grade => grade.Id);
     }
 
+    public async Task<ICollection<Grade>> GetGradesUntilAsync(int gradeId)
+    {
+        var grade = await dbContext.Grades
+            .Include(grade => grade.Skills)
+            .Include(grade => grade.PrevGrade)
+            .FirstOrDefaultAsync(grade => grade.Id == gradeId);
+
+        grade = grade ?? throw new EntityNotFoundException(nameof(Grade), gradeId);
+
+        return EnumeratePrevGrades(grade);
+    }
+
     public async Task<IEnumerable<Skill>> GetGradeSkillsAsync(int gradeId)
     {
         var gradeSkills = await dbContext.Grades
@@ -119,6 +131,20 @@ public class GradesRepository : IGradesRepository
     {
         dbContext.PositionGrades.Remove(new PositionGrade { PositionId = positionId, GradeId = gradeId });
         await dbContext.SaveChangesAsync();
+    }
+
+    private static ICollection<Grade> EnumeratePrevGrades(Grade grade)
+    {
+        var grades = new List<Grade>();
+        var currentGrade = grade;
+        while (currentGrade is not null)
+        {
+            grades.Add(currentGrade);
+            currentGrade = currentGrade.PrevGrade;
+        }
+
+        grades.Reverse();
+        return grades;
     }
 
     private async Task<PositionGrade?> FindCurrentPositionGrade(int roleId, int positionId)

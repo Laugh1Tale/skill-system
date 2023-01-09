@@ -7,6 +7,7 @@ public interface IGradesRepository
     Task<Grade?> FindGradeByIdAsync(int gradeId);
     Task<Grade> GetGradeByIdAsync(int gradeId);
     IQueryable<Grade> FindGrades(string? title = default);
+    Task<ICollection<Grade>> GetGradesUntilAsync(int gradeId);
     Task<IEnumerable<Skill>> GetGradeSkillsAsync(int gradeId);
     Task<ICollection<Position>> GetGradePositionsAsync(int gradeId);
     Task UpdateGradeAsync(Grade grade);
